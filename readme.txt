@@ -1,3 +1,7 @@
+Very Dangerous OpenGL Engine - experiment. Do Not Use It For Any Purpose!
+ 
+Очень опасный OpenGL движек - эксперимент. НЕ ИСПОДЛЬЗУЙТЕ его ни в каких целях!
+
 
  * Концепция движка *
 # Формальный запрет на использование new & delete
