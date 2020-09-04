@@ -3,8 +3,8 @@
 build/*
 bin-*/*
 distrib/build_*/*
-**.bak
-**.orig
+**/*.bak
+**/*.orig
 screenshot.bmp
 *.pyc
 Thumbs.db
