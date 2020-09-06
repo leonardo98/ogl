@@ -10,6 +10,7 @@ namespace tst
         None,
         MouseDown,
         MouseUp,
+        MouseCancel,
         MouseMove,
         MouseWheel,
         KeyPressed,
@@ -20,6 +21,8 @@ namespace tst
     {
         SignalType signalType = SignalType::None;
         int key = 0;
+        float x = 0.f;
+        float y = 0.f;
     };
 }
 

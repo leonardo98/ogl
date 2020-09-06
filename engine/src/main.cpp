@@ -5,6 +5,7 @@
 
 //#include "system/texture_remover.h"
 #include "scene/actor.h"
+#include "system/input_system.h"
 
 #include <chrono>
 
@@ -110,7 +111,34 @@ bool terminateMainThread = false;
 //    }
 //}
 
-void gameHelp(tst::Actor* root)
+static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    tst::Signal signal;
+    signal.key = button;
+    signal.signalType = (action == GLFW_RELEASE ? tst::SignalType::MouseUp : tst::SignalType::KeyPressed);
+    tst::InputSystem::Instance()->AddSignal(signal);
+}
+
+static void CursorPositionCallback(GLFWwindow* window, double x, double y)
+{
+    tst::Signal signal;
+    signal.x = (float)x;
+    signal.y = (float)y;
+    signal.signalType = tst::SignalType::MouseMove;
+    tst::InputSystem::Instance()->AddSignal(signal);
+}
+
+static void CursorEnterCallback(GLFWwindow* window, int entered)
+{
+    if (!entered)
+    {
+        tst::Signal signal;
+        signal.signalType = tst::SignalType::MouseCancel;
+        tst::InputSystem::Instance()->AddSignal(signal);
+    }
+}
+
+void GameHelpThreadFunc(tst::Actor* root)
 {
     game(root);
 
@@ -133,7 +161,6 @@ int main(void)
     glm::mat4x4 rootMatrix;
 
     // init rootMatrix
-    // 2D case!!! todo: shoud be fixed for using 3D
 
     //glm::mat4x4 ProjectionMatrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
     //// Camera matrix
@@ -147,9 +174,12 @@ int main(void)
     //);
     //rootMatrix = ProjectionMatrix * ViewMatrix;
 
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
+    glfwSetCursorPosCallback(window, CursorPositionCallback);
+    glfwSetCursorEnterCallback(window, CursorEnterCallback);
 
     tst::Actor scene;
-    std::thread gameThread(gameHelp, &scene);
+    std::thread gameThread(GameHelpThreadFunc, &scene);
 
     do {
         // Clear the screen
