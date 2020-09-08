@@ -13,15 +13,15 @@ namespace tst
     class Sprite : public Actor
     {
     public:
-        // методы вызываются из игрового потока
+        // РјРµС‚РѕРґС‹ РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· РёРіСЂРѕРІРѕРіРѕ РїРѕС‚РѕРєР°
         Sprite(std::weak_ptr<Texture> texture, int x, int y, int width, int height);
 
     protected:
-        // методы вызываются из главного потока
+        // РјРµС‚РѕРґС‹ РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· РіР»Р°РІРЅРѕРіРѕ РїРѕС‚РѕРєР°
         virtual void Render(const glm::mat4& m) const override;
         
     private:
-        // к полям вызываются из любого потока, но не конкурентно, mutex не нужен
+        // Рє РїРѕР»СЏРј РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· Р»СЋР±РѕРіРѕ РїРѕС‚РѕРєР°, РЅРѕ РЅРµ РєРѕРЅРєСѓСЂРµРЅС‚РЅРѕ, mutex РЅРµ РЅСѓР¶РµРЅ
         Quad _quad;
         float _width;
         float _height;

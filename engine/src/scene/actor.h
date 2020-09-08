@@ -20,7 +20,7 @@ namespace tst
     public:
         virtual ~Actor();
 
-        // методы вызываются из игрового потока
+        // РјРµС‚РѕРґС‹ РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· РёРіСЂРѕРІРѕРіРѕ РїРѕС‚РѕРєР°
         template <typename T, typename... Targs>
         std::shared_ptr<T> Add(Targs... Fargs)
         {
@@ -30,12 +30,12 @@ namespace tst
             return a;
         }
 
-        // методы вызываются из игрового потока
+        // РјРµС‚РѕРґС‹ РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· РёРіСЂРѕРІРѕРіРѕ РїРѕС‚РѕРєР°
         void AddChild(const std::shared_ptr<Actor>& actor);
         Actor();
 
-        // параметры описывающие положение актера
-        // методы вызываются из игрового потока
+        // РїР°СЂР°РјРµС‚СЂС‹ РѕРїРёСЃС‹РІР°СЋС‰РёРµ РїРѕР»РѕР¶РµРЅРёРµ Р°РєС‚РµСЂР°
+        // РјРµС‚РѕРґС‹ РІС‹Р·С‹РІР°СЋС‚СЃСЏ РёР· РёРіСЂРѕРІРѕРіРѕ РїРѕС‚РѕРєР°
         void SetPosition2D(float x, float y, bool forcedLock = true);
         void SetScale2D(float sx, float sy, bool forcedLock = true);
 
@@ -50,24 +50,25 @@ namespace tst
 
     protected:
 
-        // методы Render & Update вызывает основной поток, их не надо вызывать самому
+        // РјРµС‚РѕРґС‹ Render & Update РІС‹Р·С‹РІР°РµС‚ РѕСЃРЅРѕРІРЅРѕР№ РїРѕС‚РѕРє, РёС… РЅРµ РЅР°РґРѕ РІС‹Р·С‹РІР°С‚СЊ СЃР°РјРѕРјСѓ
         virtual void Render(const glm::mat4& m) const;
+        void RenderChild(const glm::mat4& m) const;
         virtual void Update(float dt);
 
-        // к этим полям обращение может быть только из главного потока
+        // Рє СЌС‚РёРј РїРѕР»СЏРј РѕР±СЂР°С‰РµРЅРёРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РёР· РіР»Р°РІРЅРѕРіРѕ РїРѕС‚РѕРєР°
         typedef std::list<std::shared_ptr<Actor>> Actors;
         Actors _children;
         glm::mat4 _local;
 
     private:
-        // к этим полям обращаемся из любого потока
+        // Рє СЌС‚РёРј РїРѕР»СЏРј РѕР±СЂР°С‰Р°РµРјСЃСЏ РёР· Р»СЋР±РѕРіРѕ РїРѕС‚РѕРєР°
         Actors _newChildren;
         glm::vec3 _position;
         float _angle;
         glm::vec3 _scale;
         mutable std::mutex _mutex;
 
-        // только main(основной поток) может вызывать Render & Update
+        // С‚РѕР»СЊРєРѕ main(РѕСЃРЅРѕРІРЅРѕР№ РїРѕС‚РѕРє) РјРѕР¶РµС‚ РІС‹Р·С‹РІР°С‚СЊ Render & Update
         friend int ::main(void);
     };
     typedef std::shared_ptr<Actor> SharedActor;

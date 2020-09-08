@@ -3,31 +3,57 @@
 using namespace tst;
 
 InputSystem* InputSystem::_instance = nullptr;
-std::mutex _instanceMutex;
+std::mutex InputSystem::_instanceMutex;
 
-void InputSystem::AddSignal(const Signal &signal)
+//void InputSystem::AddSignal(const Signal &signal)
+//{
+//    std::lock_guard<std::mutex> lock(_mutex);
+//    _signals.push_back(signal);
+//}
+//
+//bool InputSystem::IsEmpty() const
+//{
+//    std::lock_guard<std::mutex> lock(_mutex);
+//    return _signals.empty();
+//}
+//
+//Signal InputSystem::PopSignal()
+//{
+//    std::lock_guard<std::mutex> lock(_mutex);
+//    if (_signals.empty())
+//    {
+//        return Signal();
+//    }
+//
+//    Signal signal = _signals.front();
+//    _signals;
+//    return signal;
+//}
+//
+//void InputSystem::Clear()
+//{
+//    std::lock_guard<std::mutex> lock(_mutex);
+//    _signals.clear();
+//}
+
+void InputSystem::SetMousePos(float x, float y)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    _signals.push_back(signal);
+    _mousePos = glm::vec3(x, y, 0.f);
 }
 
-bool InputSystem::IsEmpty() const
+const glm::vec3 &InputSystem::GetMousePos() const
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    return _signals.empty();
+    return _mousePos;
 }
 
-Signal InputSystem::PopSignal()
+void InputSystem::SetMousePressed(bool pressed)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    if (_signals.empty())
-    {
-        return Signal();
-    }
+    _isMousePressed = pressed;
+}
 
-    Signal signal = _signals.front();
-    _signals;
-    return signal;
+bool InputSystem::GetMousePressed() const
+{
+    return _isMousePressed;
 }
 
 InputSystem* InputSystem::Instance()

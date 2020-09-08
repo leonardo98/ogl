@@ -4,6 +4,8 @@ project (Dangerous)
 
 find_package(OpenGL REQUIRED)
 
+add_definitions(-DDEBUG_RENDER)
+
 
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
     message( FATAL_ERROR "Please select another Build Directory ! (and give it a clever name, like bin_Visual2012_64bits/)" )
@@ -71,6 +73,8 @@ set(engine_SOURCES
     engine/src/scene/texture.cpp
     engine/src/scene/tweens.h
     engine/src/scene/tweens.cpp
+    engine/src/scene/mouse_area.h
+    engine/src/scene/mouse_area.cpp
     engine/src/core/game_var.h
     engine/src/core/actor_state.h
     engine/src/core/quad.h
@@ -81,6 +85,10 @@ set(engine_SOURCES
     engine/src/core/signal.h
     engine/src/system/input_system.h
     engine/src/system/input_system.cpp
+    engine/src/system/debug_render.h
+    engine/src/system/debug_render.cpp
+    engine/src/system/actors/debug_render_actor.h
+    engine/src/system/actors/debug_render_actor.cpp
 #    engine/src/system/texture_remover.h
 #    engine/src/system/texture_remover.cpp
 )

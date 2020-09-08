@@ -35,4 +35,5 @@ void Sprite::Render(const glm::mat4& m) const
         auto bc = (BatchCollector*)(sp.get());
         bc->AddQuad(_quad, result);
     }
+    Actor::RenderChild(result);
 }

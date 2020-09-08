@@ -1,96 +1,76 @@
-#include "material.h"
+#include "debug_render_actor.h"
 
-#include <fstream>
-#include <vector>
+#include "system/debug_render.h"
+
+#include <assert.h>
+
 using namespace tst;
 
-Material::~Material()
-{
-    if (_programID)
-    {
-        glDeleteProgram(_programID);
-    }
-}
-
-Material::Material(const char * vertexFilePath, const char * fragmentFilePath)
+DebugRenderActor::DebugRenderActor()
     : _programID(0u)
+    , _vertexBuffer(0u)
+    , _state(ActorState::None)
 {
-    // Read the Vertex Shader code from the file
-    std::ifstream vertexShaderStream(vertexFilePath, std::ios::in);
-    if (vertexShaderStream.is_open())
-    {
-        std::string Line = "";
-        while (std::getline(vertexShaderStream, Line))
-        {
-            _vertexShaderCode += "\n" + Line;
-        }
-        vertexShaderStream.close();
-    }
-    else
-    {
-        printf("File: %s not found", vertexFilePath);
-        _state = ActorState::Failed;
-        return;
-    }
-
-    // Read the Fragment Shader code from the file
-    std::ifstream fragmentShaderStream(fragmentFilePath, std::ios::in);
-    if (fragmentShaderStream.is_open())
-    {
-        std::string Line = "";
-        while (getline(fragmentShaderStream, Line))
-        {
-            _fragmentShaderCode += "\n" + Line;
-        }
-        fragmentShaderStream.close();
-    }
-    else
-    {
-        printf("File: %s not found", fragmentFilePath);
-        _vertexShaderCode.clear();
-        _state = ActorState::Failed;
-        return;
-    }
-
     _state = ActorState::Loaded;
 }
 
-void Material::SetMatrix(const glm::mat4& matrix)
+void DebugRenderActor::SetMatrix(const glm::mat4& matrix)
 {
     _matrix.SetValue(matrix);
 }
 
-GLuint Material::GetProgramID() const
+// вызывается только из главного потока
+void DebugRenderActor::Render(const glm::mat4& m) const
 {
-    return _programID;
-}
-
-void Material::Render(const glm::mat4& m) const
-{
-    glm::mat4 tmp(m * _matrix.GetValueLF());
     if (_state == ActorState::Binded)
     {
-        assert(_programID);
-        assert(_vertexShaderCode.empty());
-        assert(_fragmentShaderCode.empty());
-        glUseProgram(_programID);
-        // Send our transformation to the currently bound shader, 
-        // in the "MVP" uniform
-        glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &tmp[0][0]);
-        static glm::mat4x4 _rootMatrix; // закешируем единичную матрицу, чтобы не создавать каждый раз в Render
-        //todo: render childrens
-        Actor::Render(_rootMatrix);
-        glUseProgram(0u);
+        if (DebugRender::Instance()->BatchSize())
+        {
+            assert(_programID);
+            glUseProgram(_programID);
+            // Send our transformation to the currently bound shader, 
+            // in the "MVP" uniform
+            glm::mat4 tmp(m * _matrix.GetValueLF());
+            glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &tmp[0][0]);
+
+
+            glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+            glBufferData(GL_ARRAY_BUFFER, DebugRender::Instance()->BatchMemSize(), DebugRender::Instance()->BatchData(), GL_DYNAMIC_DRAW);
+
+            // 1rst attribute buffer : vertices
+            glEnableVertexAttribArray(_vertexPosID);
+
+
+            //// Prepare the triangle coordinate data
+            //glVertexAttribPointer(_vertexPosID, COORDS_PER_VERTEX,
+            //                         GLES20.GL_FLOAT, false,
+            //                         VertexStride, VertexBuffer);
+
+
+            glVertexAttribPointer(
+                _vertexPosID,  // The attribute we want to configure
+                3,                            // size
+                GL_FLOAT,                     // type
+                GL_FALSE,                     // normalized?
+                sizeof(glm::vec3),            // stride
+                (void*)0                      // array buffer offset
+            );
+
+            // Draw the triangles !
+            glDrawArrays(GL_LINES, 0, 3 * DebugRender::Instance()->BatchSize()); // 12*3 indices starting at 0 -> 12 triangles
+
+            glDisableVertexAttribArray(_vertexPosID);
+        }
     }
 }
 
-void Material::Update(float dt)
+// вызывается только из главного потока
+void DebugRenderActor::Update(float dt)
 {
     if (_state == ActorState::Binded)
     {
         assert(_programID);
-        assert(_vertexShaderCode.empty());
-        assert(_fragmentShaderCode.empty());
+        assert(_vertexBuffer);
     }
     else if (_state == ActorState::Loaded)
     {
@@ -104,20 +84,52 @@ void Material::Update(float dt)
     else
     {
         assert(_programID == 0);
-        assert(_vertexShaderCode.empty());
-        assert(_fragmentShaderCode.empty());
+        assert(_vertexBuffer == 0);
     }
 
     Actor::Update(dt);
 }
 
-void Material::Bind()
+bool DebugRenderActor::Valid() const
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _state == ActorState::Loaded || _state == ActorState::Binded;
+}
+
+DebugRenderActor::~DebugRenderActor()
+{
+    if (_vertexBuffer)
+    {
+        assert(_programID);
+        assert(_state == ActorState::Binded);
+        glDeleteBuffers(1, &_vertexBuffer);
+        glDeleteProgram(_programID);
+        return;
+    }
+    assert(_state == ActorState::Loaded || _state == ActorState::Failed);
+}
+
+void DebugRenderActor::Bind()
 {
     assert(_programID == 0);
+    assert(_vertexBuffer == 0);
+
+    std::string _vertexShaderCode = "\
+    uniform mat4 uMVPMatrix;\
+    attribute vec4 vPosition;\
+    void main() {\
+      gl_Position = uMVPMatrix * vPosition;\
+    }";
+
+    std::string _fragmentShaderCode = "\
+    void main() {\
+      gl_FragColor = vec4(1.0);\
+    }";
+
     assert(!_vertexShaderCode.empty());
     assert(!_fragmentShaderCode.empty());
 
-    // Create the shaders
+   // Create the shaders
     GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -208,8 +220,13 @@ void Material::Bind()
     _vertexShaderCode.clear();
     _fragmentShaderCode.clear();
 
-    // Get a handle for our "MVP" uniform
-    _matrixID = glGetUniformLocation(_programID, "MVP");
+    // get handle to vertex shader's vPosition member
+    _vertexPosID = glGetAttribLocation(_programID, "vPosition");
+
+    // get handle to shape's transformation matrix
+    _matrixID = glGetUniformLocation(_programID, "uMVPMatrix");
+
+    glGenBuffers(1, &_vertexBuffer);
 
     _state = ActorState::Binded;
 }

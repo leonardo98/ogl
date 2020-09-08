@@ -6,6 +6,7 @@
 //#include "system/texture_remover.h"
 #include "scene/actor.h"
 #include "system/input_system.h"
+#include "system/debug_render.h"
 
 #include <chrono>
 
@@ -38,7 +39,6 @@ int CreateWindow(int width, int height, const char *windowTitle)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
-
     // Open a window and create its OpenGL context
     window = glfwCreateWindow(width, height, "Tutorial 0 - Keyboard and Mouse", NULL, NULL);
     if (window == NULL) {
@@ -56,6 +56,8 @@ int CreateWindow(int width, int height, const char *windowTitle)
         glfwTerminate();
         return -1;
     }
+
+    glfwSwapInterval(1); // v-sync
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -95,46 +97,21 @@ bool terminateGameThread = false;
 std::mutex _mutexMainThread;
 bool terminateMainThread = false;
 
-//void WaitForInput()
-//{
-//    while (true)
-//    {
-//        {
-//            std::lock_guard<std::mutex> lock(_mutex);
-//            if (terminateGameThread)
-//            {
-//                break;
-//            }
-//        }
-//        using namespace std::chrono_literals;
-//        std::this_thread::sleep_for(10ms);
-//    }
-//}
-
 static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    tst::Signal signal;
-    signal.key = button;
-    signal.signalType = (action == GLFW_RELEASE ? tst::SignalType::MouseUp : tst::SignalType::KeyPressed);
-    tst::InputSystem::Instance()->AddSignal(signal);
+    tst::InputSystem::Instance()->SetMousePressed(action != GLFW_RELEASE);
 }
 
 static void CursorPositionCallback(GLFWwindow* window, double x, double y)
 {
-    tst::Signal signal;
-    signal.x = (float)x;
-    signal.y = (float)y;
-    signal.signalType = tst::SignalType::MouseMove;
-    tst::InputSystem::Instance()->AddSignal(signal);
+    tst::InputSystem::Instance()->SetMousePos((float)x, (float)y);
 }
 
 static void CursorEnterCallback(GLFWwindow* window, int entered)
 {
     if (!entered)
     {
-        tst::Signal signal;
-        signal.signalType = tst::SignalType::MouseCancel;
-        tst::InputSystem::Instance()->AddSignal(signal);
+        tst::InputSystem::Instance()->SetMousePressed(false);
     }
 }
 
@@ -181,24 +158,32 @@ int main(void)
     tst::Actor scene;
     std::thread gameThread(GameHelpThreadFunc, &scene);
 
-    do {
+    double currentFrame = glfwGetTime();
+    double lastFrame = currentFrame;
+        
+    do
+    {
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        tst::DebugRender::Instance()->Clear();
 
+        // Render scene to back buffer
         scene.Render(rootMatrix);
 
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(10ms);
-        scene.Update(0.01f);
+        // Update scene
+        currentFrame = glfwGetTime();
+        float deltaTime = static_cast<float>(currentFrame - lastFrame);
+        lastFrame = currentFrame;
+        scene.Update(deltaTime);
 
+        // Check if the ESC key was pressed or the window was closed
         //glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0
 
-    } // Check if the ESC key was pressed or the window was closed
-    while (!terminateMainThread);
+    } while (!terminateMainThread);
 
     {
         std::lock_guard<std::mutex> lock(_mutexGameThread);

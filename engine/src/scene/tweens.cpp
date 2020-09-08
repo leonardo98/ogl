@@ -159,6 +159,10 @@ PlaySubTween &TweenPlayer::AddTween(const std::shared_ptr<Tween> &t, float time,
 
 void TweenPlayer::Update(Actor *actor, float dt)
 {
+    if (dt > 0.1f)
+    {
+        dt = 0.1f;
+    }
     if (_mutex.try_lock())
     {
         if (_tweensIncoming.size())
