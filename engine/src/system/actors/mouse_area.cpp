@@ -37,6 +37,8 @@ void MouseArea::Render(const glm::mat4& m) const
 
 void MouseArea::Update(float dt)
 {
+	Actor::Update(dt);
+
 	glm::vec3 mousePos = InputSystem::Instance()->GetMousePos();
 	bool oldMouseInValue = _isMouseIn;
 	_isMouseIn = Inside(mousePos, _renderableRect);
@@ -74,4 +76,9 @@ bool MouseArea::Inside(const glm::vec3& m, const std::vector<glm::vec4>& dots) c
 		}
 	}
 	return (counter % 2 == 1);
+}
+
+bool MouseArea::IsMouseIn() const
+{
+	return _isMouseIn;
 }

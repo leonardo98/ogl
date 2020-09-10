@@ -73,8 +73,8 @@ set(engine_SOURCES
     engine/src/scene/texture.cpp
     engine/src/scene/tweens.h
     engine/src/scene/tweens.cpp
-    engine/src/scene/mouse_area.h
-    engine/src/scene/mouse_area.cpp
+    engine/src/scene/button.h
+    engine/src/scene/button.cpp
     engine/src/core/game_var.h
     engine/src/core/actor_state.h
     engine/src/core/quad.h
@@ -89,6 +89,8 @@ set(engine_SOURCES
     engine/src/system/debug_render.cpp
     engine/src/system/actors/debug_render_actor.h
     engine/src/system/actors/debug_render_actor.cpp
+    engine/src/system/actors/mouse_area.h
+    engine/src/system/actors/mouse_area.cpp
 #    engine/src/system/texture_remover.h
 #    engine/src/system/texture_remover.cpp
 )

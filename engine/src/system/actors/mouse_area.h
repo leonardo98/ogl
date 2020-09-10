@@ -3,7 +3,7 @@
 #ifndef TST_MOUSE_AREA_H
 #define TST_MOUSE_AREA_H
 
-#include "actor.h"
+#include "scene/actor.h"
 
 #include <glm/glm.hpp>
 
@@ -25,6 +25,8 @@ namespace tst
         virtual void OnMouseIn() {}
         virtual void OnMouseOut() {}
 
+        bool IsMouseIn() const;
+
     private:
 
         bool Inside(const glm::vec3& m, const std::vector<glm::vec4>& dots) const;
@@ -35,7 +37,7 @@ namespace tst
 
         mutable std::vector<glm::vec4> _renderableRect;
 
-        mutable bool _isMouseIn;
+        bool _isMouseIn;
     };
 }
 

@@ -1,11 +1,14 @@
+#include "core/signal.h"
+
 #include "scene/material.h"
 #include "scene/texture.h"
 #include "scene/sprite.h"
-#include "scene/mouse_area.h"
+#include "scene/button.h"
 
-#include "core/signal.h"
 #include "system/input_system.h"
+
 #include "system/actors/debug_render_actor.h"
+#include "system/actors/mouse_area.h"
 
 //#include <glm/gtc/constants.inl>
 #include <glm/gtc/matrix_transform.hpp>
@@ -44,16 +47,6 @@ void game(tst::Actor * root)
     // load material
     // sp_material - getting shared pointer to material
     auto sp_material = root->Add<tst::Material>("TransformVertexShader.vertexshader", "TextureFragmentShader.fragmentshader");
-    {
-        // 2D case
-        glm::mat4x4 projectionMatrix = glm::ortho(0.f, 1024.f, 0.f, 768.f);
-        glm::mat4 viewMatrix = glm::mat4(1.f);
-        viewMatrix = glm::translate(viewMatrix, glm::vec3(0.f, 768.f, 0.f));
-        viewMatrix = glm::scale(viewMatrix, glm::vec3(1.f, -1.f, 1.f));
-
-        sp_material->SetMatrix(projectionMatrix * viewMatrix);
-    }
-
     auto debugRender = root->Add<tst::DebugRenderActor>();
     {
         // 2D case
@@ -62,6 +55,7 @@ void game(tst::Actor * root)
         viewMatrix = glm::translate(viewMatrix, glm::vec3(0.f, 768.f, 0.f));
         viewMatrix = glm::scale(viewMatrix, glm::vec3(1.f, -1.f, 1.f));
 
+        sp_material->SetMatrix(projectionMatrix * viewMatrix);
         debugRender->SetMatrix(projectionMatrix * viewMatrix);
     }
 
@@ -86,15 +80,23 @@ void game(tst::Actor * root)
         circle2->SetPosition2D(-64.f, 0.f);
     }
 
-    circleRoot->Add<tst::MouseArea>(200, 50);
-
     // add animations
     circleRoot->CreateTween<tst::TweenRotate2D>(1.5f, 2 * glm::pi<float>()).Repeat(0);
     circleRoot->CreateTween<tst::TweenScale>(1.4f, 1.f).SetMotion(tst::MotionType::JumpOut);
 
+    auto button_texture = sp_material->Add<tst::Texture>(sp_material, "button.png");
+    tst::SharedActor button = button_texture->Add<tst::Button>(128, 60, [](std::shared_ptr<tst::Button>) {
+        printf("Button pressed!\n");
+        exit(0);
+    });
+    {
+        button->SetPosition2D(1024.f / 2, 128.f);
+        button->Add<tst::Sprite>(button_texture, 0, 0, button_texture->Width(), button_texture->Height());
+    }
+
     const tst::Signal s = WaitForSignal(tst::SignalType::MouseDown, 3.f);
 
-    for (int i = 0; i < 100; ++i)
+    for (int i = 0; i < 5000; ++i)
     {
         // circle - shared pointer to sprite
         tst::SharedActor circle = sp_texture->Add<tst::Sprite>(sp_texture, 0, 0, sp_texture->Width(), sp_texture->Height());
@@ -106,21 +108,21 @@ void game(tst::Actor * root)
         circle->SetScale2D(0.f, 0.f);
 
         // add animations
-        circle->CreateTween<tst::TweenScale>(0.3f, 1.f).SetMotion(tst::MotionType::JumpOut);
+        circle->CreateTween<tst::TweenScale>(2.3f, 1.f).SetMotion(tst::MotionType::JumpOut);
         //{
         //    // waiting for 100 ms
         //    using namespace std::chrono_literals;
         //    std::this_thread::sleep_for(100ms);
         //}
 
-        const tst::Signal s = WaitForSignal(tst::SignalType::MouseDown, 0.1f);
+        const tst::Signal s = WaitForSignal(tst::SignalType::MouseDown, 0.01f);
         if (s.signalType == tst::SignalType::MouseDown)
         {
             break;
         }
     }
     
-    WaitForSignal(tst::SignalType::MouseDown, 3.f);
+    WaitForSignal(tst::SignalType::MouseDown);
 
     // exit app
 }

@@ -67,5 +67,6 @@ InputSystem* InputSystem::Instance()
 }
 
 InputSystem::InputSystem()
+    : _isMousePressed(false)
 {
 }

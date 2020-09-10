@@ -92,10 +92,8 @@ int CreateWindow(int width, int height, const char *windowTitle)
 
 void game(tst::Actor* root);
 
-std::mutex _mutexGameThread;
-bool terminateGameThread = false;
-std::mutex _mutexMainThread;
-bool terminateMainThread = false;
+std::atomic<bool> terminateGameThread = false;
+std::atomic<bool> terminateMainThread = false;
 
 static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -119,10 +117,7 @@ void GameHelpThreadFunc(tst::Actor* root)
 {
     game(root);
 
-    {
-        std::lock_guard<std::mutex> lock(_mutexMainThread);
-        terminateMainThread = true;
-    }
+    terminateMainThread = true;
 }
 
 int main(void)
@@ -185,10 +180,7 @@ int main(void)
 
     } while (!terminateMainThread);
 
-    {
-        std::lock_guard<std::mutex> lock(_mutexGameThread);
-        terminateGameThread = true;
-    }
+    terminateGameThread = true;
     gameThread.join();
 
     // Close OpenGL window and terminate GLFW

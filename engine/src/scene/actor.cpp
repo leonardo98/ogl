@@ -25,6 +25,13 @@ void Actor::AddChild(const std::shared_ptr<Actor>& actor)
 }
 
 // вызывается из игрового потока
+void Actor::RemoveChild(const std::shared_ptr<Actor>& actor)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+    _childrenToRemove.push_back(actor);
+}
+
+// вызывается из игрового потока
 void Actor::SetPosition2D(float x, float y, bool forcedLock /*= true*/)
 {
     SetPosition(glm::vec3(x, y, 0.f));
@@ -136,6 +143,15 @@ void Actor::Update(float dt)
             // get new children
             _children.insert(_children.end(), _newChildren.begin(), _newChildren.end());
             _newChildren.clear();
+        }
+        if (_childrenToRemove.size())
+        {
+            // remove children
+            for (auto& a : _childrenToRemove)
+            {
+                _children.remove(a);
+            }
+            _childrenToRemove.clear();
         }
 
         // todo: тут нужен рефакторинг решения

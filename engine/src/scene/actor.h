@@ -32,6 +32,8 @@ namespace tst
 
         // методы вызываются из игрового потока
         void AddChild(const std::shared_ptr<Actor>& actor);
+        void RemoveChild(const std::shared_ptr<Actor>& actor);
+        
         Actor();
 
         // параметры описывающие положение актера
@@ -63,6 +65,7 @@ namespace tst
     private:
         // к этим полям обращаемся из любого потока
         Actors _newChildren;
+        Actors _childrenToRemove;
         glm::vec3 _position;
         float _angle;
         glm::vec3 _scale;
