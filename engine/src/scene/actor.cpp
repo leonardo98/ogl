@@ -135,7 +135,8 @@ void Actor::RenderChild(const glm::mat4& m) const
 // в худшем случае они лишь может устареть
 void Actor::Update(float dt)
 {
-    TweenPlayer::Update(this, dt);
+    bool hasTweens = TweenPlayer::Update(this, dt);
+    
     if (_mutex.try_lock())
     {
         if (_newChildren.size())

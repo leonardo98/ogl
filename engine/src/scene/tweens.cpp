@@ -157,7 +157,7 @@ PlaySubTween &TweenPlayer::AddTween(const std::shared_ptr<Tween> &t, float time,
     return _tweensIncoming.back();
 }
 
-void TweenPlayer::Update(Actor *actor, float dt)
+bool TweenPlayer::Update(Actor *actor, float dt)
 {
     if (dt > 0.1f)
     {
@@ -228,6 +228,8 @@ void TweenPlayer::Update(Actor *actor, float dt)
         }
 
     }
+
+    return !_tweens.empty();
 }
 
 void TweenPlayer::ClearTweens()

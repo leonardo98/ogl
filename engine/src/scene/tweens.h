@@ -221,7 +221,7 @@ namespace tst
 
         // методы вызываются из главного потока
         virtual ~TweenPlayer() { ClearTweens(); }
-        void Update(Actor* actor, float dt);
+        bool Update(Actor* actor, float dt);
         void ClearTweens();
         void TweenCheck();
         bool Action() { return _tweens.size() > 0; }
