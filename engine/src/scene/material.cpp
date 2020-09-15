@@ -14,6 +14,7 @@ Material::~Material()
 
 Material::Material(const char * vertexFilePath, const char * fragmentFilePath)
     : _programID(0u)
+    , _matrix(glm::mat4(1.f))
 {
     // Read the Vertex Shader code from the file
     std::ifstream vertexShaderStream(vertexFilePath, std::ios::in);
@@ -65,9 +66,9 @@ GLuint Material::GetProgramID() const
     return _programID;
 }
 
-void Material::Render(const glm::mat4& m) const
+void Material::Render(const RenderState& rs) const
 {
-    glm::mat4 tmp(m * _matrix.GetValueLF());
+    glm::mat4 tmp(rs.matrix * _matrix.GetValueLF());
     if (_state == ActorState::Binded)
     {
         assert(_programID);
@@ -79,7 +80,7 @@ void Material::Render(const glm::mat4& m) const
         glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &tmp[0][0]);
         static glm::mat4x4 _rootMatrix; // закешируем единичную матрицу, чтобы не создавать каждый раз в Render
         //todo: render childrens
-        Actor::Render(_rootMatrix);
+        Actor::Render({ _rootMatrix, rs.alpha, nullptr });
         glUseProgram(0u);
     }
 }

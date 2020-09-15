@@ -28,6 +28,7 @@ Texture::Texture(std::weak_ptr<Material> material, const char* fileName)
     , _height(0)
     , _material(material)
 {
+    _batcher = std::make_shared<BatchCollector>();
     int comp = 0;
     _buffer = stbi_load(fileName, &_width, &_height, &comp, STBI_default);
 
@@ -57,7 +58,7 @@ Texture::Texture(std::weak_ptr<Material> material, const char* fileName)
 */
 
 // вызывается только из главного потока
-void Texture::Render(const glm::mat4& m) const
+void Texture::Render(const RenderState& rs) const
 {
     if (_state == ActorState::Binded)
     {
@@ -70,44 +71,60 @@ void Texture::Render(const glm::mat4& m) const
         // Set our "myTextureSampler" sampler to user Texture Unit 0
         glUniform1i(_uniformTextureID, 0);
 
-        BatchStart();
-        Actor::Render(m);
+        //_batcher->BatchStart();
 
-        if (BatchSize())
+        _batcher->Clear();
+
+        RenderState renderState{rs.matrix, rs.alpha, _batcher.get() };
+        Actor::Render(renderState);
+
+        if (_batcher->Size())
         {
             glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-            glBufferData(GL_ARRAY_BUFFER, BatchMemSize(), BatchData(), GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, _batcher->MemSize(), _batcher->Data(), GL_DYNAMIC_DRAW);
+
+            unsigned int baseOffset = 0;
 
             // 1rst attribute buffer : vertices
             glEnableVertexAttribArray(_vertexPosID);
             glVertexAttribPointer(
-                _vertexPosID,  // The attribute we want to configure
+                _vertexPosID,                 // The attribute we want to configure
                 3,                            // size
                 GL_FLOAT,                     // type
                 GL_FALSE,                     // normalized?
-                sizeof(Vertex),               // stride
-                (void*)0                      // array buffer offset
+                sizeof(RenderVertex),               // stride
+                reinterpret_cast<void*>(baseOffset + offsetof(RenderVertex, x)) // array buffer offset
             );
 
             // 2nd attribute buffer : UVs
             glEnableVertexAttribArray(_vertexUVID);
             glVertexAttribPointer(
-                _vertexUVID,                   // The attribute we want to configure
+                _vertexUVID,                  // The attribute we want to configure
                 2,                            // size : U+V => 2
                 GL_FLOAT,                     // type
                 GL_FALSE,                     // normalized?
-                sizeof(Vertex),               // stride
-                (void*)(3 * sizeof(float))    // array buffer offset (skipping x, y, z)
+                sizeof(RenderVertex),               // stride
+                reinterpret_cast<void*>(baseOffset + offsetof(RenderVertex, u))    // array buffer offset (skipping x, y, z)
+            );
+
+            // 3rd attribute buffer : Colors
+            glEnableVertexAttribArray(_vertexAlphaID);
+            glVertexAttribPointer(
+                _vertexAlphaID,               // The attribute we want to configure
+                1,                            // size : alpha is unsigned char
+                GL_UNSIGNED_BYTE,             // type
+                GL_FALSE,                     // normalized?
+                sizeof(RenderVertex),               // stride
+                reinterpret_cast<void*>(baseOffset + offsetof(RenderVertex, alpha))    // array buffer offset (skipping x, y, z, u, v)
             );
 
             // Draw the triangles !
-            glDrawArrays(GL_TRIANGLES, 0, 3 * BatchSize()); // 12*3 indices starting at 0 -> 12 triangles
+            glDrawArrays(GL_TRIANGLES, 0, 3 * _batcher->Size()); // 12*3 indices starting at 0 -> 12 triangles
 
             glDisableVertexAttribArray(_vertexPosID);
             glDisableVertexAttribArray(_vertexUVID);
+            glDisableVertexAttribArray(_vertexAlphaID);
         }
-
-        BatchFinish();
     }
 }
 
@@ -151,6 +168,7 @@ void Texture::Update(float dt)
                     // Get a handle for our buffers
                     _vertexPosID = glGetAttribLocation(programID, "vertexPosition_modelspace");
                     _vertexUVID = glGetAttribLocation(programID, "vertexUV");
+                    _vertexAlphaID = glGetAttribLocation(programID, "vertexAlpha");
                 }
             }
 

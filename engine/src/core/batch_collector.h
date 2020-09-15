@@ -5,8 +5,7 @@
 
 #include "vertex.h"
 #include "quad.h"
-
-#include <glm/glm.hpp>
+#include "render_state.h"
 
 #include <vector>
 
@@ -17,15 +16,14 @@ namespace tst
     class BatchCollector
     {
     public:
-        void BatchStart() const;
-        void AddQuad(const Quad &quad, const glm::mat4 &m);
-        void BatchFinish() const;
-        const void * BatchData() const;
-        unsigned int BatchMemSize() const;
-        unsigned int BatchSize() const;
+        void AddQuad(const Quad &quad, const RenderState &rs);
+        void Clear() const;
+        const void * Data() const;
+        unsigned int MemSize() const;
+        unsigned int Size() const;
 
     private:
-        mutable std::vector<Vertex> _batch;
+        mutable std::vector<RenderVertex> _batch;
 
         friend class Sprite;
     };

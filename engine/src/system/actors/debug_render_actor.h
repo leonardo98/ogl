@@ -32,7 +32,7 @@ namespace tst
     protected:
 
         // методы вызываются из главного потока
-        void Render(const glm::mat4& m) const override;
+        void Render(const RenderState& rs) const override;
         void Update(float dt) override;
 
     private:

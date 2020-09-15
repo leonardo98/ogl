@@ -15,9 +15,9 @@ MouseArea::MouseArea(int width, int height)
 {
 }
 
-void MouseArea::Render(const glm::mat4& m) const
+void MouseArea::Render(const RenderState& rs) const
 {
-    glm::mat4 result = m * _local;
+    glm::mat4 result = rs.matrix * _local;
 
 	_renderableRect.clear();
 	_renderableRect.emplace_back(glm::vec4(-_width / 2.f, -_height / 2.f, 0.f, 1.f));
@@ -32,7 +32,7 @@ void MouseArea::Render(const glm::mat4& m) const
     DebugRender::Instance()->AddRect(_renderableRect[0], _renderableRect[1], _renderableRect[2], _renderableRect[3]);
 #endif//DEBUG_RENDER
 
-    Actor::RenderChild(result);
+	Actor::RenderChild({ result, rs.alpha, rs.batch });
 }
 
 void MouseArea::Update(float dt)

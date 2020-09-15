@@ -102,40 +102,27 @@ namespace tst
         virtual void UpdatePosition(Actor* actor, float dt);
     };
 
-    //class TweenAlpha : public Tween
-    //{
-    //private:
-    //    float _alpha;
-    //    float _alphaStart;
-    //public:
-    //    TweenAlpha(float alpha)
-    //        : _alpha(alpha)
-    //        , _alphaStart(-1)
-    //    {}
-    //    virtual void UpdatePosition(Actor *actor, float p);
-    //};
+    class TweenAlpha : public Tween
+    {
+    private:
+        float _alpha;
+        float _startAlpha;
+    public:
+        TweenAlpha(float alpha);
+        void Init(Actor* actor) override;
+        virtual void UpdatePosition(Actor* actor, float p) override;
+    };
 
-    //class TweenColor : public Tween
-    //{
-    //private:
-    //    float _r;
-    //    float _g;
-    //    float _b;
-    //    float _a;
-    //    float _rStart;
-    //    float _gStart;
-    //    float _bStart;
-    //    float _aStart;
-    //public:
-    //    TweenColor(unsigned int color)
-    //        : _r(static_cast<float>((color & 0xFF0000) >> 16))
-    //        , _g(static_cast<float>((color & 0xFF00) >> 8))
-    //        , _b(static_cast<float>((color & 0xFF)))
-    //        , _a(static_cast<float>((color & 0xFF000000) >> 24))
-    //        , _rStart(-1.f)
-    //    {}
-    //    virtual void UpdatePosition(Actor *actor, float p);
-    //};
+ /*   class TweenColor : public Tween
+    {
+    private:
+        glm::vec4 _color;
+        glm::vec4 _startColor;
+    public:
+        TweenColor(const glm::vec4 &color);
+        void Init(Actor* actor) override;
+        virtual void UpdatePosition(Actor *actor, float p) override;
+    };*/
 
     class TweenEmpty : public Tween
     {

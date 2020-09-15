@@ -5,8 +5,6 @@
 
 #include "scene/actor.h"
 
-#include <glm/glm.hpp>
-
 #include <vector>
 
 namespace tst
@@ -19,7 +17,7 @@ namespace tst
 
     protected:
         // методы вызываются из главного потока
-        virtual void Render(const glm::mat4& m) const override;
+        virtual void Render(const RenderState& rs) const override;
         virtual void Update(float dt) override;
 
         virtual void OnMouseIn() {}

@@ -15,6 +15,11 @@ namespace tst
     class GameVar
     {
     public:
+        GameVar(const T& value)
+            : _incomingValue(value)
+            , _value(value)
+        {
+        }
         // setting variable
         void SetValue(const T& value)
         {

@@ -24,16 +24,16 @@ Sprite::Sprite(std::weak_ptr<Texture> texture, int x, int y, int width, int heig
     _quad.vertices[2].u = (x + _width) / w;  _quad.vertices[2].v = (y + _height) / h;
     _quad.vertices[3].u = x / w;             _quad.vertices[3].v = (y + _height) / h;
 
-    _quad.vertices[0].color = _quad.vertices[1].color = _quad.vertices[2].color = _quad.vertices[3].color = 0xFFFFFFFF;
+    _quad.vertices[0].alpha = _quad.vertices[1].alpha = _quad.vertices[2].alpha = _quad.vertices[3].alpha = 1.f;
 }
 
-void Sprite::Render(const glm::mat4& m) const
+void Sprite::Render(const RenderState& rs) const
 {
-    glm::mat4 result = m * _local;
-    if (auto sp = _texture.lock())
+    RenderState result{ rs.matrix * _local, rs.alpha * GetAlpha(), rs.batch };
+    assert(rs.batch);
+    if (rs.batch)
     {
-        auto bc = (BatchCollector*)(sp.get());
-        bc->AddQuad(_quad, result);
+        rs.batch->AddQuad(_quad, result);
     }
     Actor::RenderChild(result);
 }

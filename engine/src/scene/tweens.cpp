@@ -82,28 +82,34 @@ void TweenQueue::UpdatePosition(Actor *actor, float dt)
     }
 }
 
-//void TweenAlpha::UpdatePosition(Actor *actor, float p) 
+TweenAlpha::TweenAlpha(float alpha)
+    : _alpha(alpha)
+{
+}
+
+void TweenAlpha::Init(Actor* actor)
+{
+    _startAlpha = actor->GetAlpha();
+}
+
+void TweenAlpha::UpdatePosition(Actor* actor, float p)
+{
+    actor->SetAlpha(lerp(_startAlpha, _alpha, p));
+}
+
+//TweenColor::TweenColor(const glm::vec4& color)
+//    : _color(color)
 //{
-//    if (_alphaStart < 0)
-//    {
-//        _alphaStart = actor->GetAlpha();
-//    }
-//    actor->SetAlpha(lerp(_alphaStart, _alpha, p));
+//}
+//
+//void TweenColor::Init(Actor* actor)
+//{
+//    _startColor = actor->GetColor();
 //}
 //
 //void TweenColor::UpdatePosition(Actor *actor, float p) 
 //{
-//    if (_rStart < 0)
-//    {
-//        _rStart = static_cast<float>((actor->GetColor() & 0xFF0000) >> 16);
-//        _gStart = static_cast<float>((actor->GetColor() & 0xFF00) >> 8);
-//        _bStart = static_cast<float>((actor->GetColor() & 0xFF));
-//        _aStart = static_cast<float>((actor->GetColor() & 0xFF000000) >> 24);
-//    }
-//    actor->SetColor(static_cast<unsigned int>(lerp(_rStart, _r, p)) << 16 
-//                    | static_cast<unsigned int>(lerp(_gStart, _g, p)) << 8 
-//                    | static_cast<unsigned int>(lerp(_bStart, _b, p)) 
-//                    | static_cast<unsigned int>(lerp(_aStart, _a, p)) << 24 );
+//    actor->SetColor(lerp(_startColor, _color, p));
 //}
 
 void TweenPosition::Init(Actor* actor)

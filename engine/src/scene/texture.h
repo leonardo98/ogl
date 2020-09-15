@@ -17,7 +17,7 @@
 
 namespace tst
 {
-    class Texture : public Actor, protected BatchCollector
+    class Texture : public Actor
     {
     public:
 
@@ -33,7 +33,7 @@ namespace tst
     protected:
 
         // методы вызываются из главного потока
-        void Render(const glm::mat4& m) const override;
+        void Render(const RenderState& rs) const override;
         void Update(float dt) override;
 
     private:
@@ -44,6 +44,7 @@ namespace tst
         int _height;
         unsigned char *_buffer;
         std::weak_ptr<Material> _material;
+        std::shared_ptr<BatchCollector> _batcher;
         mutable std::mutex _mutex;
 
         // к этим полям обращение может быть только из главного потока
@@ -52,6 +53,7 @@ namespace tst
         GLuint _uniformTextureID;
         GLuint _vertexPosID;
         GLuint _vertexUVID;
+        GLuint _vertexAlphaID;
     };
     typedef std::shared_ptr<Texture> SharedTexture;
 }

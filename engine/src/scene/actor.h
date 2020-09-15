@@ -3,9 +3,9 @@
 #ifndef TST_ACTOR_H
 #define TST_ACTOR_H
 
+#include "core/game_var.h"
+#include "core/render_state.h"
 #include "scene/tweens.h"
-
-#include <glm/glm.hpp>
 
 #include <list>
 #include <memory>
@@ -50,11 +50,14 @@ namespace tst
         void SetRotation2D(float angle, bool forcedLock = true);
         float GetRotation2D() const;
 
+        void SetAlpha(float alpha);
+        float GetAlpha() const;
+
     protected:
 
         // методы Render & Update вызывает основной поток, их не надо вызывать самому
-        virtual void Render(const glm::mat4& m) const;
-        void RenderChild(const glm::mat4& m) const;
+        virtual void Render(const RenderState& rs) const;
+        void RenderChild(const RenderState& rs) const;
         virtual void Update(float dt);
 
         // к этим полям обращение может быть только из главного потока
@@ -69,6 +72,7 @@ namespace tst
         glm::vec3 _position;
         float _angle;
         glm::vec3 _scale;
+        GameVar<float> _alpha;
         mutable std::mutex _mutex;
 
         // только main(основной поток) может вызывать Render & Update

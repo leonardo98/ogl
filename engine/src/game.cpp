@@ -46,7 +46,7 @@ void game(tst::Actor * root)
 {
     // load material
     // sp_material - getting shared pointer to material
-    auto sp_material = root->Add<tst::Material>("TransformVertexShader.vertexshader", "TextureFragmentShader.fragmentshader");
+    auto sp_material = root->Add<tst::Material>("ColoredTransformVertexShader.vertexshader", "ColoredTextureFragmentShader.fragmentshader");
     auto debugRender = root->Add<tst::DebugRenderActor>();
     {
         // 2D case
@@ -87,7 +87,7 @@ void game(tst::Actor * root)
     auto button_texture = sp_material->Add<tst::Texture>(sp_material, "button.png");
     tst::SharedActor button = button_texture->Add<tst::Button>(128, 60, [](std::shared_ptr<tst::Button>) {
         printf("Button pressed!\n");
-        exit(0);
+        exit(1); // temporary, todo: rewrite with signal's system and safe resource removing
     });
     {
         button->SetPosition2D(1024.f / 2, 128.f);
@@ -106,9 +106,11 @@ void game(tst::Actor * root)
 
         // set sprite scale on screen
         circle->SetScale2D(0.f, 0.f);
+        circle->SetAlpha(0.f);
 
         // add animations
         circle->CreateTween<tst::TweenScale>(2.3f, 1.f).SetMotion(tst::MotionType::JumpOut);
+        circle->CreateTween<tst::TweenAlpha>(2.3f, 1.f);
         //{
         //    // waiting for 100 ms
         //    using namespace std::chrono_literals;

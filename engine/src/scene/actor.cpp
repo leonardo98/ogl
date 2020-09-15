@@ -14,6 +14,7 @@ Actor::Actor()
     : _position(0.f, 0.f, 0.f)
     , _angle(0.f)
     , _scale(1.f, 1.f, 1.f)
+    , _alpha(1.f)
 {
 }
 
@@ -95,6 +96,11 @@ void Actor::SetScale(const glm::vec3& scale, bool forcedLock /*= true*/)
     }
 }
 
+void Actor::SetAlpha(float alpha)
+{
+    _alpha.SetValue(alpha);
+}
+
 const glm::vec3 Actor::GetPosition() const
 {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -113,17 +119,22 @@ float Actor::GetRotation2D() const
     return _angle;
 }
 
-// методы Render & Update вызывает основной поток, их не надо вызывать самому
-void Actor::Render(const glm::mat4& m) const
+float Actor::GetAlpha() const
 {
-    RenderChild(m * _local);
+    return _alpha.GetValueLF(); // _color сам заботится о потоках
 }
 
-void Actor::RenderChild(const glm::mat4& m) const
+// методы Render & Update вызывает основной поток, их не надо вызывать самому
+void Actor::Render(const RenderState& rs) const
+{
+    RenderChild({ rs.matrix * _local, rs.alpha, rs.batch });
+}
+
+void Actor::RenderChild(const RenderState& rs) const
 {
     for (auto& cld : _children)
     {
-        cld->Render(m);
+        cld->Render(rs);
     }
 }
 
@@ -132,7 +143,7 @@ void Actor::RenderChild(const glm::mat4& m) const
 // в основном потоке запрет на использование std::mutex::lock(),
 // ничто не должно блокировать работу основного потока,
 // он сам заботится о корректном отображении информации,
-// в худшем случае они лишь может устареть
+// в худшем случае она(информация) может устареть на один кадр
 void Actor::Update(float dt)
 {
     bool hasTweens = TweenPlayer::Update(this, dt);

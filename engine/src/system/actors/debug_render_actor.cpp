@@ -10,6 +10,7 @@ DebugRenderActor::DebugRenderActor()
     : _programID(0u)
     , _vertexBuffer(0u)
     , _state(ActorState::None)
+    , _matrix(glm::mat4(1.f))
 {
     _state = ActorState::Loaded;
 }
@@ -20,7 +21,7 @@ void DebugRenderActor::SetMatrix(const glm::mat4& matrix)
 }
 
 // вызывается только из главного потока
-void DebugRenderActor::Render(const glm::mat4& m) const
+void DebugRenderActor::Render(const RenderState& rs) const
 {
     if (_state == ActorState::Binded)
     {
@@ -30,7 +31,7 @@ void DebugRenderActor::Render(const glm::mat4& m) const
             glUseProgram(_programID);
             // Send our transformation to the currently bound shader, 
             // in the "MVP" uniform
-            glm::mat4 tmp(m * _matrix.GetValueLF());
+            glm::mat4 tmp(rs.matrix * _matrix.GetValueLF());
             glUniformMatrix4fv(_matrixID, 1, GL_FALSE, &tmp[0][0]);
 
 

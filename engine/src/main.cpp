@@ -4,6 +4,7 @@
 //
 
 //#include "system/texture_remover.h"
+#include "core/render_state.h"
 #include "scene/actor.h"
 #include "system/input_system.h"
 #include "system/debug_render.h"
@@ -163,7 +164,7 @@ int main(void)
         tst::DebugRender::Instance()->Clear();
 
         // Render scene to back buffer
-        scene.Render(rootMatrix);
+        scene.Render({ rootMatrix, 1.f, nullptr });
 
         // Swap buffers
         glfwSwapBuffers(window);

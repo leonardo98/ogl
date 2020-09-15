@@ -75,6 +75,7 @@ set(engine_SOURCES
     engine/src/scene/tweens.cpp
     engine/src/scene/button.h
     engine/src/scene/button.cpp
+    engine/src/core/render_state.h
     engine/src/core/game_var.h
     engine/src/core/actor_state.h
     engine/src/core/quad.h
@@ -108,6 +109,8 @@ add_executable(engine
     
     engine/TransformVertexShader.vertexshader
     engine/TextureFragmentShader.fragmentshader
+    engine/ColoredTransformVertexShader.vertexshader
+    engine/ColoredTextureFragmentShader.fragmentshader
     )
 include_directories(engine/src)
 target_link_libraries(engine
