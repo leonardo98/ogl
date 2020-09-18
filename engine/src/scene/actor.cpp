@@ -4,10 +4,20 @@
 
 using namespace tst;
 
+std::atomic<unsigned int> _g_actor_counter = 0;
+const unsigned int MAX_ACTORS_AMOUNT = 10000;
+
+unsigned int tst::GetActorsAmount()
+{
+    return _g_actor_counter;
+}
+
 // вызывается из игрового потока
 
 Actor::~Actor()
 {
+    assert(_g_actor_counter > 0);
+    _g_actor_counter--;
 }
 
 Actor::Actor()
@@ -16,6 +26,8 @@ Actor::Actor()
     , _scale(1.f, 1.f, 1.f)
     , _alpha(1.f)
 {
+    assert(_g_actor_counter < MAX_ACTORS_AMOUNT);
+    _g_actor_counter++;
 }
 
 // вызывается из игрового потока
@@ -121,7 +133,7 @@ float Actor::GetRotation2D() const
 
 float Actor::GetAlpha() const
 {
-    return _alpha.GetValueLF(); // _color сам заботится о потоках
+    return _alpha.GetValueLF(); // _alpha сам заботится о потоках
 }
 
 // методы Render & Update вызывает основной поток, их не надо вызывать самому

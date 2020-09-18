@@ -84,6 +84,8 @@ set(engine_SOURCES
     engine/src/core/vertex.h
     engine/src/core/vertex.cpp
     engine/src/core/signal.h
+    engine/src/system/signal_system.h
+    engine/src/system/signal_system.cpp
     engine/src/system/input_system.h
     engine/src/system/input_system.cpp
     engine/src/system/debug_render.h

@@ -1,9 +1,7 @@
 #pragma once
 
-#ifndef INPUT_MANAGER_H
-#define INPUT_MANAGER_H
-
-//#include "core/signal.h"
+#ifndef INPUT_SYSTEM_H
+#define INPUT_SYSTEM_H
 
 #include <glm/glm.hpp>
 
@@ -15,11 +13,6 @@ namespace tst
     class InputSystem
     {
     public:
-        // обращаемся к методам из любого потока
-        //void AddSignal(const Signal &signal);
-        //bool IsEmpty() const;
-        //Signal PopSignal();
-        //void Clear();
 
         void SetMousePos(float x, float y);
         const glm::vec3 &GetMousePos() const;
@@ -31,7 +24,6 @@ namespace tst
     private:
         static InputSystem* _instance;
         static std::mutex _instanceMutex;
-        //std::list<Signal> _signals;
 
         bool _isMousePressed;
         glm::vec3 _mousePos;
@@ -41,4 +33,4 @@ namespace tst
     };
 }
 
-#endif//INPUT_MANAGER_H
+#endif//INPUT_SYSTEM_H

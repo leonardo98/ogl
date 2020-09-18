@@ -78,7 +78,10 @@ namespace tst
         // только main(основной поток) может вызывать Render & Update
         friend int ::main(void);
     };
+
     typedef std::shared_ptr<Actor> SharedActor;
+
+    extern unsigned int GetActorsAmount();
 }
 
 #endif//TST_ACTOR_H

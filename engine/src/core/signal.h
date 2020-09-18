@@ -3,27 +3,22 @@
 #ifndef TST_SIGNAL_H
 #define TST_SIGNAL_H
 
+#include <memory>
+
 namespace tst
 {
-    enum class SignalType
+    struct SignalBase
     {
-        None,
-        MouseDown,
-        MouseUp,
-        MouseCancel,
-        MouseMove,
-        MouseWheel,
-        KeyPressed,
-        KeyReleased
+        unsigned int code;
     };
 
-    struct Signal
+    template <class T>
+    struct Signal : public SignalBase
     {
-        SignalType signalType = SignalType::None;
-        int key = 0;
-        float x = 0.f;
-        float y = 0.f;
+        T value;
     };
+
+    typedef std::shared_ptr<SignalBase> SharedSignal;
 }
 
 #endif//TST_SIGNAL_H

@@ -6,6 +6,7 @@
 #include "scene/button.h"
 
 #include "system/input_system.h"
+#include "system/signal_system.h"
 
 #include "system/actors/debug_render_actor.h"
 #include "system/actors/mouse_area.h"
@@ -16,18 +17,18 @@
 #include <thread>
 #include <chrono>
 
-tst::Signal WaitForSignal(tst::SignalType signalType, float time = 0.f)// wait for input while time in sec
+tst::SharedSignal WaitForSignal(unsigned int signalCode, float time = 0.f)// wait for input while time in sec
 {
     while (true)
     {
-        //if (!tst::InputSystem::Instance()->IsEmpty())
-        //{
-        //    tst::Signal s = tst::InputSystem::Instance()->PopSignal();
-        //    if (s.signalType == signalType)
-        //    {
-        //        return s;
-        //    }
-        //}
+        if (!tst::SignalSystem::Instance()->IsEmpty())
+        {
+            tst::SharedSignal s = tst::SignalSystem::Instance()->PopSignal();
+            if (s->code == signalCode)
+            {
+                return s;
+            }
+        }
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(10ms);
         if (time > 0.f)
@@ -39,10 +40,10 @@ tst::Signal WaitForSignal(tst::SignalType signalType, float time = 0.f)// wait f
             }
         }
     }
-    return tst::Signal();
+    return nullptr;
 }
 
-void game(tst::Actor * root)
+void game(tst::SharedActor root)
 {
     // load material
     // sp_material - getting shared pointer to material
@@ -87,14 +88,22 @@ void game(tst::Actor * root)
     auto button_texture = sp_material->Add<tst::Texture>(sp_material, "button.png");
     tst::SharedActor button = button_texture->Add<tst::Button>(128, 60, [](std::shared_ptr<tst::Button>) {
         printf("Button pressed!\n");
-        exit(1); // temporary, todo: rewrite with signal's system and safe resource removing
+        
+        auto ss = std::make_shared<tst::Signal<std::string>>();
+        ss->value = "test";
+        ss->code = 1;
+        tst::SignalSystem::Instance()->AddSignal(ss);
+
+        auto sb = std::make_shared<tst::SignalBase>();
+        sb->code = 0;
+        tst::SignalSystem::Instance()->AddSignal(sb);
     });
     {
         button->SetPosition2D(1024.f / 2, 128.f);
         button->Add<tst::Sprite>(button_texture, 0, 0, button_texture->Width(), button_texture->Height());
     }
 
-    const tst::Signal s = WaitForSignal(tst::SignalType::MouseDown, 3.f);
+    WaitForSignal(0, 3.f);
 
     for (int i = 0; i < 5000; ++i)
     {
@@ -117,14 +126,14 @@ void game(tst::Actor * root)
         //    std::this_thread::sleep_for(100ms);
         //}
 
-        const tst::Signal s = WaitForSignal(tst::SignalType::MouseDown, 0.01f);
-        if (s.signalType == tst::SignalType::MouseDown)
+        const tst::SharedSignal s = WaitForSignal(0, 0.01f);
+        if (s)
         {
             break;
         }
     }
     
-    WaitForSignal(tst::SignalType::MouseDown);
+    WaitForSignal(0);
 
     // exit app
 }

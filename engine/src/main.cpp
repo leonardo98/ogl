@@ -91,7 +91,7 @@ int CreateWindow(int width, int height, const char *windowTitle)
     return 0;
 }
 
-void game(tst::Actor* root);
+void game(tst::SharedActor root);
 
 std::atomic<bool> terminateGameThread = false;
 std::atomic<bool> terminateMainThread = false;
@@ -114,7 +114,7 @@ static void CursorEnterCallback(GLFWwindow* window, int entered)
     }
 }
 
-void GameHelpThreadFunc(tst::Actor* root)
+void GameHelpThreadFunc(tst::SharedActor root)
 {
     game(root);
 
@@ -151,8 +151,8 @@ int main(void)
     glfwSetCursorPosCallback(window, CursorPositionCallback);
     glfwSetCursorEnterCallback(window, CursorEnterCallback);
 
-    tst::Actor scene;
-    std::thread gameThread(GameHelpThreadFunc, &scene);
+    tst::SharedActor scene = std::make_shared<tst::Actor>();
+    std::thread gameThread(GameHelpThreadFunc, scene);
 
     double currentFrame = glfwGetTime();
     double lastFrame = currentFrame;
@@ -164,7 +164,7 @@ int main(void)
         tst::DebugRender::Instance()->Clear();
 
         // Render scene to back buffer
-        scene.Render({ rootMatrix, 1.f, nullptr });
+        scene->Render({ rootMatrix, 1.f, nullptr });
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -174,7 +174,7 @@ int main(void)
         currentFrame = glfwGetTime();
         float deltaTime = static_cast<float>(currentFrame - lastFrame);
         lastFrame = currentFrame;
-        scene.Update(deltaTime);
+        scene->Update(deltaTime);
 
         // Check if the ESC key was pressed or the window was closed
         //glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0
@@ -183,6 +183,10 @@ int main(void)
 
     terminateGameThread = true;
     gameThread.join();
+
+    scene = nullptr;
+
+    assert(tst::GetActorsAmount() == 0);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
