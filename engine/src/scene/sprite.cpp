@@ -3,8 +3,7 @@
 using namespace tst;
 
 Sprite::Sprite(std::weak_ptr<Texture> texture, int x, int y, int width, int height)
-    : _texture(texture)
-    , _width(static_cast<float>(width))
+    : _width(static_cast<float>(width))
     , _height(static_cast<float>(height))
 {
     auto sp = texture.lock();

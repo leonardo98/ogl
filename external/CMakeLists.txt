@@ -144,6 +144,20 @@ target_link_libraries(ANTTWEAKBAR_116_OGLCORE_GLFW
 	${EXTRA_LIBS}
 )
 
+### RapidXml ###
+
+set(RAPIDXML_SOURCE
+	rapidxml/rapidxml.hpp
+	rapidxml/rapidxml_iterators.hpp
+	rapidxml/rapidxml_print.hpp
+	rapidxml/rapidxml_utils.hpp
+)
+
+include_directories(
+	${CMAKE_SOURCE_DIR}/external/rapidxml/
+)
+
+
 ### ASSIMP ###
 # AssImp already has a CMakeLists.txt so let's use these
 

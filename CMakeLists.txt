@@ -42,6 +42,7 @@ include_directories(
     external/assimp-3.0.1270/include/
     external/bullet-2.81-rev2613/src/
     external/stb_image/
+    external/
     .
 )
 
@@ -67,6 +68,8 @@ set(engine_SOURCES
     engine/src/scene/actor.cpp
     engine/src/scene/sprite.h
     engine/src/scene/sprite.cpp
+    engine/src/scene/text.h
+    engine/src/scene/text.cpp
     engine/src/scene/material.h
     engine/src/scene/material.cpp
     engine/src/scene/texture.h
@@ -86,6 +89,8 @@ set(engine_SOURCES
     engine/src/core/signal.h
     engine/src/system/signal_system.h
     engine/src/system/signal_system.cpp
+    engine/src/system/paths.h
+    engine/src/system/paths.cpp
     engine/src/system/input_system.h
     engine/src/system/input_system.cpp
     engine/src/system/debug_render.h
@@ -109,10 +114,10 @@ add_executable(engine
 #    common/texture.cpp
 #    common/texture.hpp
     
-    engine/TransformVertexShader.vertexshader
-    engine/TextureFragmentShader.fragmentshader
-    engine/ColoredTransformVertexShader.vertexshader
-    engine/ColoredTextureFragmentShader.fragmentshader
+#    engine/assets/TransformVertexShader.vertexshader
+#    engine/assets/TextureFragmentShader.fragmentshader
+#    engine/assets/ColoredTransformVertexShader.vertexshader
+#    engine/assets/ColoredTextureFragmentShader.fragmentshader
     )
 include_directories(engine/src)
 target_link_libraries(engine

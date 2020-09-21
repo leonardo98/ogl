@@ -4,6 +4,7 @@
 #include "scene/texture.h"
 #include "scene/sprite.h"
 #include "scene/button.h"
+#include "scene/text.h"
 
 #include "system/input_system.h"
 #include "system/signal_system.h"
@@ -103,7 +104,15 @@ void game(tst::SharedActor root)
         button->Add<tst::Sprite>(button_texture, 0, 0, button_texture->Width(), button_texture->Height());
     }
 
+    auto font_texture = sp_material->Add<tst::Texture>(sp_material, "test_0.png");
+    auto text = font_texture->Add<tst::Text>("test.fnt");
+    text->SetText("Start!");
+
     WaitForSignal(0, 3.f);
+
+    text->SetPosition2D(1024.f / 2, 768.f / 2);
+    text->SetText("Alpha blending 5000 of circles!");
+    text->SetAlign(tst::HorAlign::Center, tst::VertAlign::Top);
 
     for (int i = 0; i < 5000; ++i)
     {
@@ -133,6 +142,8 @@ void game(tst::SharedActor root)
         }
     }
     
+    text->SetText("The quick brown fox jumps over the lazy dog.\nThe quick brownfox jumps\nover the lazy dog.\n\nPress button to exit!");
+
     WaitForSignal(0);
 
     // exit app

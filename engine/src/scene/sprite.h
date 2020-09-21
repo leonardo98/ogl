@@ -21,11 +21,10 @@ namespace tst
         virtual void Render(const RenderState& rs) const override;
         
     private:
-        // к полям вызываются из любого потока, но не конкурентно, mutex не нужен
+        // к полям вызываются из любого потока, но не конкурентно, только на чтение, mutex не нужен
         Quad _quad;
         float _width;
         float _height;
-        std::weak_ptr<Texture> _texture;
     };
 }
 

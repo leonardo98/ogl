@@ -1,5 +1,7 @@
 #include "material.h"
 
+#include "system/paths.h"
+
 #include <fstream>
 #include <vector>
 using namespace tst;
@@ -16,8 +18,10 @@ Material::Material(const char * vertexFilePath, const char * fragmentFilePath)
     : _programID(0u)
     , _matrix(glm::mat4(1.f))
 {
+    std::string vertexFileFullPath = GetPath(vertexFilePath);
+
     // Read the Vertex Shader code from the file
-    std::ifstream vertexShaderStream(vertexFilePath, std::ios::in);
+    std::ifstream vertexShaderStream(vertexFileFullPath, std::ios::in);
     if (vertexShaderStream.is_open())
     {
         std::string Line = "";
@@ -34,8 +38,10 @@ Material::Material(const char * vertexFilePath, const char * fragmentFilePath)
         return;
     }
 
+    std::string fragmentFileFullPath = GetPath(fragmentFilePath);
+
     // Read the Fragment Shader code from the file
-    std::ifstream fragmentShaderStream(fragmentFilePath, std::ios::in);
+    std::ifstream fragmentShaderStream(fragmentFileFullPath, std::ios::in);
     if (fragmentShaderStream.is_open())
     {
         std::string Line = "";

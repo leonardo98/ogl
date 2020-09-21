@@ -1,7 +1,9 @@
 #include "texture.h"
 
+#include "system/paths.h"
+
 #define STB_IMAGE_IMPLEMENTATION
-#include "external\stb_image\stb_image.h"
+#include "stb_image.h"
 
 #include <assert.h>
 
@@ -30,7 +32,8 @@ Texture::Texture(std::weak_ptr<Material> material, const char* fileName)
 {
     _batcher = std::make_shared<BatchCollector>();
     int comp = 0;
-    _buffer = stbi_load(fileName, &_width, &_height, &comp, STBI_default);
+    std::string fileNameFullPath = GetPath(fileName);
+    _buffer = stbi_load(fileNameFullPath.c_str(), &_width, &_height, &comp, STBI_default);
 
     if (!_buffer || _width == 0 || _height == 0)
     {
